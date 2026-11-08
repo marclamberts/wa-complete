@@ -1,0 +1,7 @@
+# league data is licensed (IMPECT, Opta, StatsBomb, SkillCorner): never commit it
+data/*
+!data/README.md
+__pycache__/
+*.pyc
+.DS_Store
+.streamlit/secrets.toml

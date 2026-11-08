@@ -123,15 +123,15 @@ def bar(key: str, name: str, sheets: dict, payload, figs_fn: Callable[[], list] 
                                    "text/csv", width="stretch", key=f"c_{key}")
         with c[4]:
             st.write("")
-        files = data.files(league["key"])
         with c[5]:
-            if files.get("xlsx"):
-                st.download_button("League Excel", files["xlsx"].read_bytes(), files["xlsx"].name,
-                                   width="stretch", key=f"lx_{key}", help="Every table of the league, 20 sheets")
+            xf = data.league_file(league["key"], "xlsx")
+            if xf:
+                st.download_button("League Excel", xf[1], xf[0], width="stretch", key=f"lx_{key}",
+                                   help="Every table of the league, 20 sheets")
         with c[6]:
-            if files.get("csv"):
-                st.download_button("League CSV", files["csv"].read_bytes(), files["csv"].name, "application/zip",
-                                   width="stretch", key=f"lc_{key}")
+            cf = data.league_file(league["key"], "csv")
+            if cf:
+                st.download_button("League CSV", cf[1], cf[0], "application/zip", width="stretch", key=f"lc_{key}")
         with c[7]:
             st.download_button("JSON", json.dumps(payload, ensure_ascii=False, indent=1, default=str), f"{stem}.json",
                                "application/json", width="stretch", key=f"j_{key}")

@@ -33,6 +33,25 @@ streamlit run app.py
 - **JSON**: the data behind the view.
 - **League Excel / League CSV**: the whole league (20 tables) as written by the daily agent.
 
+## Login
+
+The app opens on a login page (two accounts). Passwords are never stored: `.streamlit/secrets.toml` holds a salted
+PBKDF2 hash per user and the key that signs the login cookie. "Keep me logged in for 30 days" stores a signed token in a
+browser cookie; without it you stay in until the browser closes. "Log out" in the sidebar clears it.
+
+Add or change a user: `python -m wa_complete.auth "<password>"` prints a salt and hash; put them under
+`[auth.users.<Name>]` in the secrets (locally and on Streamlit Cloud).
+
+## Online (Streamlit Cloud)
+
+1. Deploy `marclamberts/wa-complete`, branch `main`, main file `app.py`.
+2. App settings > Secrets: paste the whole content of your local `.streamlit/secrets.toml` (`[neon]` read-only database
+   URL, `[auth]` cookie key and user hashes). It is git-ignored and never pushed.
+
+The daily agent uploads every league (payload, league Excel, CSV zip) to a private Neon database (project
+"WA Complete") right after its 12:30 run; the online app reads it with a read-only login and picks up new data within
+5 minutes.
+
 ## Data
 
 The app reads the league files written every day by the **WA Match Hub 26-27** agent
@@ -40,7 +59,8 @@ The app reads the league files written every day by the **WA Match Hub 26-27** a
 
 1. `WA_HUB_DATA` environment variable, a folder with `<KEY>/WA_Hub_*.json`
 2. `./data` in this repo (git-ignored)
-3. `~/Downloads/Agents/WA Match Hub 26-27/web/exports`
+3. `~/Downloads/Agents/WA Match Hub 26-27/web/exports` (the Mac that runs the agent)
+4. Neon, with the read-only URL from `st.secrets["neon"]["url"]` (online; `WA_HUB_SOURCE=neon` forces it locally)
 
 The app reloads a league as soon as the agent writes a new file. League data is licensed and is never committed
 (`data/` is in `.gitignore`); for a hosted copy, sync the exports to the server's `data/` folder or set `WA_HUB_DATA`.
@@ -49,7 +69,8 @@ The app reloads a league as soon as the agent writes a new file. League data is 
 
 ```
 app.py                     sidebar (style, league, page) and routing
-wa_complete/data.py        finds and caches the league payloads
+wa_complete/data.py        finds and caches the league payloads (local files or Neon)
+wa_complete/auth.py        login page, password hashes, 30-day cookie
 wa_complete/style.py       navy / fog palettes: Streamlit theme, CSS, matplotlib
 wa_complete/charts.py      pitch, shot maps, xG race, momentum, corner maps, goal mouth, pizza, deviation radar
 wa_complete/analytics.py   pizza / radar profiles, team style

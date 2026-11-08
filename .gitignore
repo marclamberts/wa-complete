@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .streamlit/secrets.toml
+
+# copy of .streamlit/secrets.toml for pasting into Streamlit Cloud
+secrets_streamlit_cloud.toml
